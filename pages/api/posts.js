@@ -12,7 +12,18 @@ export default async function handler(req, res) {
                 return res.status(200).json(posts);
 
             case 'POST':
+                // Ensure req.body is not null and contains valid data
+                if (!req.body || typeof req.body !== 'object') {
+                    return res.status(400).json({ error: 'Invalid request body' });
+                }
+
                 const { title, content } = req.body;
+
+                // Basic validation
+                if (!title || !content) {
+                    return res.status(400).json({ error: 'Title and content are required' });
+                }
+
                 const slug = title.toLowerCase().replace(/ /g, '-');
 
                 // Check for unique slug
@@ -27,7 +38,18 @@ export default async function handler(req, res) {
                 return res.status(201).json(newPost);
 
             case 'PUT':
+                // Ensure req.body is valid and contains required fields
+                if (!req.body || typeof req.body !== 'object') {
+                    return res.status(400).json({ error: 'Invalid request body' });
+                }
+
                 const { id, updatedTitle, updatedContent } = req.body;
+
+                // Basic validation
+                if (!id || !updatedTitle || !updatedContent) {
+                    return res.status(400).json({ error: 'ID, title, and content are required' });
+                }
+
                 const updatedSlug = updatedTitle.toLowerCase().replace(/ /g, '-');
 
                 // Check for unique slug, excluding the current post
@@ -48,6 +70,11 @@ export default async function handler(req, res) {
                 return res.status(200).json(updatedPost);
 
             case 'DELETE':
+                // Ensure req.body is valid and contains postId
+                if (!req.body || typeof req.body !== 'object' || !req.body.postId) {
+                    return res.status(400).json({ error: 'Post ID is required' });
+                }
+
                 const { postId } = req.body;
                 await prisma.post.delete({ where: { id: postId } });
                 return res.status(204).end();

@@ -1,12 +1,19 @@
 import { useState } from 'react';
+import { Button, TextField, Typography, Paper, CircularProgress, Snackbar } from '@mui/material';
 import Editor from '../components/Editor';
+import { Alert } from '@mui/material';
 
 const NewPost = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const response = await fetch('/api/posts', {
             method: 'POST',
             headers: {
@@ -14,29 +21,65 @@ const NewPost = () => {
             },
             body: JSON.stringify({ title, content }),
         });
+        setLoading(false);
+
         if (response.ok) {
-            console.log('Post created successfully');
+            setSnackbarMessage('Post created successfully');
+            setSnackbarSeverity('success');
         } else {
-            console.error('Failed to create post');
+            setSnackbarMessage('Failed to create post');
+            setSnackbarSeverity('error');
         }
+        setSnackbarOpen(true);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow">
-            <h1 className="text-3xl font-bold mb-4">Create New Post</h1>
-            <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title"
-                required
-                className="w-full p-2 mb-4 border rounded"
-            />
-            <Editor value={content} onChange={setContent} />
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-4">
-                Create Post
-            </button>
-        </form>
+        <Paper elevation={3} className="p-6 mx-auto max-w-4xl mt-12 rounded-lg shadow-lg">
+            <Typography variant="h4" component="h1" className="font-bold mb-4 text-center text-gray-900">
+                Create New Post
+            </Typography>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <TextField
+                    label="Title"
+                    variant="outlined"
+                    fullWidth
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    className="bg-white"
+                />
+                <Editor value={content} onChange={setContent} />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    className="mt-4 transition duration-300 transform hover:scale-105 focus:outline-none"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <CircularProgress size={24} color="inherit" />
+                    ) : (
+                        'Create Post'
+                    )}
+                </Button>
+            </form>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+            >
+                <Alert
+                    onClose={() => setSnackbarOpen(false)}
+                    severity={snackbarSeverity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </Paper>
     );
 };
 
