@@ -24,3 +24,9 @@ nav a {
 main {
   padding: 1rem;
 }
+#footer{
+  display: table;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  }

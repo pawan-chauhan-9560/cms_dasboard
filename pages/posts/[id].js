@@ -30,8 +30,10 @@ const EditPost = () => {
             body: JSON.stringify({ title, content }),
         });
         if (response.ok) {
+            // Handle success
             console.log('Post updated successfully');
         } else {
+            // Handle error
             console.error('Failed to update post');
         }
     };
